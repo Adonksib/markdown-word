@@ -9,7 +9,10 @@
   },
   "scripts": {
     "convert": "node src/cli.js",
-    "verify": "node scripts/verify.js"
+    "verify": "node scripts/verify.js",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "engines": {
     "node": ">=18"
@@ -21,6 +24,8 @@
     "unified": "^11.0.5"
   },
   "devDependencies": {
-    "jszip": "^3.10.2"
+    "jszip": "^3.10.2",
+    "lucide": "^1.68.0",
+    "vite": "^8.3.5"
   }
 }

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Markdown 转 Word</title>
+    <link rel="stylesheet" href="./src/web/style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="app-header">
+        <div>
+          <h1>Markdown 转 Word</h1>
+          <p>拖入 Markdown 文件，在浏览器里直接生成 Word 文档。</p>
+        </div>
+        <div class="header-actions">
+          <button id="downloadAllBtn" class="btn btn-primary" disabled>
+            <i data-lucide="download"></i>
+            <span>下载全部</span>
+          </button>
+          <button id="clearBtn" class="btn btn-ghost" disabled>
+            <i data-lucide="trash-2"></i>
+            <span>清空</span>
+          </button>
+        </div>
+      </header>
+
+      <section id="dropZone" class="drop-zone" tabindex="0" role="button" aria-label="拖入或选择 Markdown 文件">
+        <input id="fileInput" type="file" accept=".md,.markdown,text/markdown" multiple hidden />
+        <i data-lucide="upload" class="drop-icon"></i>
+        <p class="drop-title">把 .md 文件拖到这里</p>
+        <p class="drop-hint">或者点击选择文件，支持一次多个</p>
+      </section>
+
+      <section id="fileList" class="file-list" aria-live="polite"></section>
+
+      <footer class="app-footer">
+        转换完全在你的浏览器本地完成，文件不会上传。
+      </footer>
+    </main>
+
+    <script type="module" src="./src/web/main.js"></script>
+  </body>
+</html>
