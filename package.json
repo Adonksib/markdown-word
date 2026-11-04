@@ -1,0 +1,26 @@
+{
+  "name": "markdown-to-word",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Markdown 批量转 Word 的最小可用命令行工具",
+  "bin": {
+    "md2docx": "src/cli.js"
+  },
+  "scripts": {
+    "convert": "node src/cli.js",
+    "verify": "node scripts/verify.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "docx": "^9.15.1",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "unified": "^11.0.5"
+  },
+  "devDependencies": {
+    "jszip": "^3.10.2"
+  }
+}
