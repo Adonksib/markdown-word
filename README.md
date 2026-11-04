@@ -1,114 +1,157 @@
-# Markdown 转 Word
+# Markdown 转 Word（小白教程）
 
-一个最小可用的命令行工具，把 Markdown 文件批量转换为同名 `.docx` 文件。
+这个工具能把 Markdown（`.md`）文件自动变成 Word（`.docx`）文件。
+标题、列表、表格、代码块、引用都会保留下来。
 
-## 功能
+下面每一步都照着做就行。
 
-- 单文件转换
-- 目录批量转换，递归处理子目录
-- 保留标题、无序/有序列表、表格、代码块、引用
-- 保留粗体、斜体、删除线、行内代码、链接
-- 清晰的错误提示：文件不存在、格式不支持、输出目录不可写
+## 第 0 步：先检查电脑有没有 Node.js
 
-## 技术栈
+这个工具需要电脑里装了 Node.js。
 
-- [unified](https://unifiedjs.com) + [remark-parse](https://github.com/remarkjs/remark) + [remark-gfm](https://github.com/remarkjs/remark-gfm)：解析 Markdown
-- [docx](https://docx.js.org)：生成 Word 文档
-- Node.js >= 18
+1. 按键盘上的 `Win` 键，输入 `PowerShell`，回车打开。
+2. 在弹出的窗口里输入下面这行，然后回车：
 
-## 安装
+```bash
+node -v
+```
+
+3. 如果屏幕上出现 `v18`、`v20`、`v22` 这类带数字的结果，就说明装好了，直接跳到第 1 步。
+4. 如果提示“不是内部或外部命令”之类的话，去 <https://nodejs.org> 下载 LTS 版本，一路点“下一步”装完，再重新打开 PowerShell，重复第 2 步。
+
+## 第 1 步：进入这个项目的文件夹
+
+在 PowerShell 里输入下面这行，然后回车：
+
+```bash
+cd D:\markdown转word
+```
+
+`cd` 是“进入文件夹”的意思。
+
+## 第 2 步：安装工具需要的零件（第一次做一次就行）
+
+输入下面这行，回车，等它自己跑完：
 
 ```bash
 npm install
 ```
 
-## 使用
+这一步只需要做一次。以后再用这个工具，不用重复做。
 
-### 单文件
+## 第 3 步：先转换一个示例文件试试
 
-```bash
-node src/cli.js convert <输入文件.md> <输出文件.docx>
-```
-
-示例：
+输入下面这整行，然后回车：
 
 ```bash
 node src/cli.js convert examples/input/demo.md examples/output/single/demo.docx
 ```
 
-### 批量
+这句话的意思是：
 
-```bash
-node src/cli.js batch <输入目录> <输出目录>
+- `convert`：转换一个文件
+- `examples/input/demo.md`：要转换的 Markdown 文件
+- `examples/output/single/demo.docx`：生成出来的 Word 文件放在哪里
+
+看到“已转换”三个字，就是成功了。
+
+去打开这个文件看看效果：
+
+```text
+D:\markdown转word\examples\output\single\demo.docx
 ```
 
-示例：
+## 第 4 步：批量转换一个文件夹里的所有 Markdown 文件
+
+输入下面这行，回车：
 
 ```bash
 node src/cli.js batch examples/input examples/output/batch
 ```
 
-批量转换会递归扫描输入目录，保持子目录结构，并把每个
-`xxx.md` 或 `xxx.markdown` 转换为同名 `xxx.docx`。非 Markdown 文件会被跳过。
+意思是：把 `examples/input` 文件夹里所有的 `.md` 文件，全部转成
+`.docx`，放到 `examples/output/batch` 文件夹里。
 
-## 支持的元素
+子文件夹也会一起处理，原来的文件夹结构会保留。
 
-| 元素 | 转换结果 |
-| --- | --- |
-| `#` 到 `######` 标题 | Word Heading 1-6 样式 |
-| 无序 / 有序 / 嵌套列表 | Word 列表编号 |
-| 管道表格 | Word 表格 |
-| 围栏代码块 | 等宽字体、灰色底纹 |
-| `>` 引用 | 缩进斜体引用样式 |
-| 粗体、斜体、删除线、行内代码、链接 | 对应格式 |
+结果在这里：
 
-## 错误提示
+```text
+D:\markdown转word\examples\output\batch
+```
 
-| 场景 | 退出码 |
-| --- | --- |
-| 输入文件不存在 | 2 |
-| 文件格式不支持（仅 `.md` / `.markdown`） | 3 |
-| 输出目录不可写 | 4 |
+## 第 5 步：检查工具是否正常工作（可选）
 
-## 示例
-
-示例文件位于 `examples/input/`：
-
-- `demo.md`：覆盖标题、列表、表格、代码块、引用
-- `sub/notes.md`：用于验证递归批量转换
-
-## 验证
-
-运行以下命令，会执行单文件和批量转换，并检查生成的文档中是否保留了
-标题、列表、表格、代码块和引用：
+输入下面这行，回车：
 
 ```bash
 npm run verify
 ```
 
-## 项目结构
+如果最后看到“验证通过”，说明一切正常。
+
+## 怎么转换你自己的文件
+
+1. 新建一个文件夹，比如：
 
 ```text
-.
-├── src/
-│   ├── cli.js          # 命令行入口和错误处理
-│   └── converter.js    # Markdown AST 到 docx 的转换
-├── scripts/
-│   └── verify.js       # 验证命令
-├── examples/
-│   └── input/          # 示例 Markdown 文件
-└── package.json
+D:\我的笔记
 ```
 
-## 上传到 GitHub
-
-在 GitHub 新建仓库后，执行：
+2. 把你的 `.md` 文件放进去，也可以在里面再建子文件夹。
+3. 在 PowerShell 里输入下面这行，回车：
 
 ```bash
-git init
-git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin <你的仓库地址>
+node src/cli.js batch D:\我的笔记 D:\我的笔记-word
+```
+
+4. 转换完成后，打开 `D:\我的笔记-word` 文件夹，里面就是对应的 Word 文件。
+
+## 两条命令怎么改
+
+转换一个文件：
+
+```text
+node src/cli.js convert 输入文件.md 输出文件.docx
+```
+
+批量转换一个文件夹：
+
+```text
+node src/cli.js batch 输入文件夹 输出文件夹
+```
+
+把后面两个路径换成你自己的路径就行。路径里有中文或者空格也没关系，
+照抄即可。
+
+## 遇到报错怎么办
+
+| 报错里出现的关键词 | 意思 | 解决办法 |
+| --- | --- | --- |
+| 文件不存在 | 输入的文件路径写错了，或者文件不在那个位置 | 检查路径和文件名是否一致 |
+| 格式不支持 | 工具只认 `.md` 和 `.markdown` 结尾的文件 | 把文件后缀改成 `.md` |
+| 输出目录不可写 | 输出的文件夹没有写入权限，或者被别的程序占用了 | 换一个输出文件夹试试 |
+
+## 支持哪些内容
+
+| Markdown 写法 | 转换后 |
+| --- | --- |
+| `#` 到 `######` 开头的标题 | Word 里的 1 到 6 级标题 |
+| `-` 或数字开头的列表 | Word 里的项目符号或编号列表 |
+| 用 `|` 写的表格 | Word 里的表格 |
+| 三个反引号包起来的代码块 | 等宽字体的代码块 |
+| `>` 开头的引用 | 缩进的引用样式 |
+| 粗体、斜体、删除线、行内代码、链接 | 对应的格式 |
+
+## 想上传到 GitHub
+
+先在 GitHub 网站上新建一个空仓库，然后把下面每行依次输入 PowerShell，
+每输一行回车一次：
+
+```bash
+git remote add origin 你的仓库地址
 git push -u origin main
 ```
+
+`你的仓库地址` 换成 GitHub 仓库页面上复制出来的地址，例如
+`https://github.com/你的用户名/仓库名.git`。
