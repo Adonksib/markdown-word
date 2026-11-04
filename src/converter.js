@@ -4,45 +4,116 @@ import remarkGfm from "remark-gfm";
 import * as docx from "docx";
 
 const LIST_LEVELS = [0, 1, 2, 3, 4, 5];
-const HEADING_BY_DEPTH = {
-  1: docx.HeadingLevel.HEADING_1,
-  2: docx.HeadingLevel.HEADING_2,
-  3: docx.HeadingLevel.HEADING_3,
-  4: docx.HeadingLevel.HEADING_4,
-  5: docx.HeadingLevel.HEADING_5,
-  6: docx.HeadingLevel.HEADING_6,
+
+const YAHEI = {
+  ascii: "微软雅黑",
+  hAnsi: "微软雅黑",
+  eastAsia: "微软雅黑",
+  cs: "微软雅黑",
+};
+
+const CONSOLAS = {
+  ascii: "Consolas",
+  hAnsi: "Consolas",
+  eastAsia: "微软雅黑",
+  cs: "Consolas",
 };
 
 const STYLES = {
+  default: {
+    document: {
+      run: { font: YAHEI, size: 22 },
+    },
+  },
   paragraphStyles: [
     {
-      id: "BlockQuote",
-      name: "Block Quote",
+      id: "BodyText",
+      name: "Body Text",
       basedOn: "Normal",
+      next: "BodyText",
       quickFormat: true,
       paragraph: {
-        spacing: { before: 120, after: 120 },
-        indent: { left: docx.convertInchesToTwip(0.4) },
+        spacing: { after: 0, line: 240 },
+        indent: { left: 100 },
       },
-      run: {
-        italics: true,
-        color: "404040",
+      run: { font: YAHEI, size: 19 },
+    },
+    {
+      id: "Title",
+      name: "Title",
+      basedOn: "Normal",
+      next: "Normal",
+      quickFormat: true,
+      paragraph: {
+        spacing: { after: 120, line: 240 },
+        indent: { left: 100 },
       },
+      run: { font: YAHEI, size: 39, bold: true },
+    },
+    {
+      id: "Heading1",
+      name: "heading 1",
+      basedOn: "Normal",
+      next: "BodyText",
+      quickFormat: true,
+      paragraph: {
+        spacing: { before: 200, after: 0, line: 240 },
+        indent: { left: 100 },
+        outlineLevel: 1,
+      },
+      run: { font: YAHEI, size: 29, bold: true },
+    },
+    {
+      id: "Heading2",
+      name: "heading 2",
+      basedOn: "Normal",
+      next: "BodyText",
+      quickFormat: true,
+      paragraph: {
+        spacing: { before: 120, after: 0, line: 240 },
+        indent: { left: 355, hanging: 256 },
+        outlineLevel: 2,
+      },
+      run: { font: YAHEI, size: 23, bold: true },
+    },
+    {
+      id: "ListParagraph",
+      name: "List Paragraph",
+      basedOn: "Normal",
+      next: "ListParagraph",
+      quickFormat: true,
+      paragraph: {
+        spacing: { after: 0, line: 240 },
+        indent: { left: 490, hanging: 277 },
+      },
+      run: { font: YAHEI, size: 19 },
     },
     {
       id: "CodeBlock",
       name: "Code Block",
       basedOn: "Normal",
+      next: "Normal",
       quickFormat: true,
       paragraph: {
-        spacing: { before: 80, after: 80 },
+        spacing: { before: 60, after: 60, line: 240 },
+        indent: { left: 100 },
       },
-      run: {
-        font: { name: "Consolas" },
-        size: 18,
-      },
+      run: { font: CONSOLAS, size: 19 },
     },
   ],
+};
+
+const PAGE = {
+  size: { width: 12240, height: 15840 },
+  margin: {
+    top: 860,
+    right: 720,
+    bottom: 280,
+    left: 740,
+    header: 720,
+    footer: 720,
+    gutter: 0,
+  },
 };
 
 function bulletNumbering() {
@@ -108,7 +179,7 @@ function inlineRuns(nodes, options = {}) {
       runs.push(
         new docx.TextRun({
           text: node.value,
-          font: { name: "Consolas" },
+          font: CONSOLAS,
           ...options,
         }),
       );
@@ -142,15 +213,34 @@ function inlineRuns(nodes, options = {}) {
 }
 
 function renderHeading(node) {
-  const depth = Math.min(Math.max(node.depth, 1), 6);
+  const depth = node.depth;
+  if (depth <= 1) {
+    return new docx.Paragraph({
+      style: "Title",
+      children: inlineRuns(node.children, { color: "0077BA" }),
+    });
+  }
+  if (depth === 2) {
+    return new docx.Paragraph({
+      style: "Heading1",
+      children: inlineRuns(node.children),
+    });
+  }
+  if (depth === 3) {
+    return new docx.Paragraph({
+      style: "Heading2",
+      children: inlineRuns(node.children),
+    });
+  }
   return new docx.Paragraph({
-    heading: HEADING_BY_DEPTH[depth],
-    children: inlineRuns(node.children),
+    style: "BodyText",
+    children: inlineRuns(node.children, { bold: true }),
   });
 }
 
 function renderParagraph(node, extra = {}) {
   return new docx.Paragraph({
+    style: "BodyText",
     children: inlineRuns(node.children),
     ...extra,
   });
@@ -178,12 +268,38 @@ function renderBlockquote(node, ctx) {
   const blocks = [];
   for (const child of node.children || []) {
     if (child.type === "paragraph") {
-      blocks.push(renderParagraph(child, { style: "BlockQuote" }));
+      blocks.push(
+        new docx.Paragraph({
+          style: "BodyText",
+          indent: { left: 385 },
+          children: inlineRuns(child.children, {
+            bold: true,
+            color: "777777",
+          }),
+        }),
+      );
     } else {
       blocks.push(...renderBlock(child, ctx));
     }
   }
   return blocks;
+}
+
+function tableBorders() {
+  const side = {
+    style: docx.BorderStyle.SINGLE,
+    size: 6,
+    color: "DDDDDD",
+    space: 0,
+  };
+  return {
+    top: side,
+    bottom: side,
+    left: side,
+    right: side,
+    insideHorizontal: side,
+    insideVertical: side,
+  };
 }
 
 function renderTable(node) {
@@ -192,17 +308,16 @@ function renderTable(node) {
     return new docx.TableRow({
       children: row.children.map((cell, cellIndex) => {
         const alignment = alignmentFor(node.align?.[cellIndex]);
-        const paragraphs = (cell.children || []).map((child) =>
-          new docx.Paragraph({
-            alignment,
-            children: inlineRuns(child.children || [], {
-              bold: isHeader,
-            }),
+        const paragraph = new docx.Paragraph({
+          alignment,
+          children: inlineRuns(cell.children || [], {
+            size: 19,
+            bold: isHeader,
           }),
-        );
+        });
         return new docx.TableCell({
-          shading: isHeader ? { fill: "D9E2F3" } : undefined,
-          children: paragraphs.length > 0 ? paragraphs : [new docx.Paragraph("")],
+          shading: isHeader ? { fill: "EDEDED" } : undefined,
+          children: [paragraph],
         });
       }),
     });
@@ -210,6 +325,9 @@ function renderTable(node) {
 
   return new docx.Table({
     width: { size: 100, type: docx.WidthType.PERCENTAGE },
+    borders: tableBorders(),
+    layout: docx.TableLayoutType.FIXED,
+    cellMargin: { top: 0, bottom: 0, left: 0, right: 0 },
     rows,
   });
 }
@@ -242,8 +360,10 @@ function renderListItem(item, listNode, ctx) {
   for (const child of item.children || []) {
     if (child.type === "paragraph") {
       blocks.push(
-        renderParagraph(child, {
+        new docx.Paragraph({
+          style: "ListParagraph",
           numbering: { reference, level },
+          children: inlineRuns(child.children),
         }),
       );
     } else if (child.type === "list") {
@@ -299,7 +419,7 @@ export function buildDocument(markdown) {
   return new docx.Document({
     styles: STYLES,
     numbering,
-    sections: [{ children: blocks }],
+    sections: [{ properties: { page: PAGE }, children: blocks }],
   });
 }
 

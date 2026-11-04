@@ -42,12 +42,13 @@ const xml = await documentXml(
   path.join(rootDir, "examples", "output", "single", "demo.docx"),
 );
 
-check("保留一级标题", xml.includes('w:val="Heading1"'));
+check("保留标题层级", xml.includes('w:val="Title"') && xml.includes('w:val="Heading1"'));
 check("保留无序/有序列表", xml.includes("w:numPr"));
 check("保留表格", xml.includes("<w:tbl>"));
+check("保留表格表头底纹", xml.includes('w:fill="EDEDED"'));
 check("保留代码块样式", xml.includes('w:val="CodeBlock"'));
 check("保留代码内容", xml.includes("const answer = 42;"));
-check("保留引用样式", xml.includes('w:val="BlockQuote"'));
+check("保留引用样式", xml.includes('w:val="777777"'));
 
 const nestedXml = await documentXml(
   path.join(rootDir, "examples", "output", "batch", "sub", "notes.docx"),
